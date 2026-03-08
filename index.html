@@ -865,21 +865,29 @@
         }
       }
 
+      // Helper: find the first amount in line or the next N lines
+      function amountOnLineOrNearby(lines, idx, lookahead = 2) {
+        for (let i = idx; i <= Math.min(idx + lookahead, lines.length - 1); i++) {
+          const a = extractAmount(lines[i]);
+          if (a) return a;
+        }
+        return null;
+      }
+
       // Match each line against dictionary
-      for (const line of lines) {
+      for (let li = 0; li < lines.length; li++) {
+        const line = lines[li];
         const norm = normalize(line);
         const amount = extractAmount(line);
 
         // Check gross / net
-        if (/שכר ברוטו|ברוטו/.test(norm) && amount) {
-          results.gross = amount;
-          results.matchedLines.add(norm);
-          continue;
+        if (/שכר ברוטו|ברוטו/.test(norm)) {
+          const val = amount || amountOnLineOrNearby(lines, li + 1);
+          if (val) { results.gross = val; results.matchedLines.add(norm); continue; }
         }
-        if (/שכר נטו|לתשלום|נטו/.test(norm) && amount) {
-          results.net = amount;
-          results.matchedLines.add(norm);
-          continue;
+        if (/שכר נטו|לתשלום|נטו/.test(norm)) {
+          const val = amount || amountOnLineOrNearby(lines, li + 1);
+          if (val) { results.net = val; results.matchedLines.add(norm); continue; }
         }
 
         let matched = false;
