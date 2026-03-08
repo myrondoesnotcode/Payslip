@@ -1071,7 +1071,10 @@
       loadingText.textContent = 'Loading OCR engine…';
       loadingSub.textContent = 'This runs entirely on your device — no data is sent anywhere.';
       const Tesseract = await loadTesseract();
-      const worker = await Tesseract.createWorker('heb+eng', Tesseract.OEM.LSTM_ONLY, {
+      const worker = await Tesseract.createWorker('heb+eng', Tesseract.OEM?.LSTM_ONLY ?? 1, {
+        workerPath: 'https://unpkg.com/tesseract.js@4.1.1/dist/worker.min.js',
+        langPath: 'https://tessdata.projectnaptha.com/4.0.0',
+        corePath: 'https://unpkg.com/tesseract.js-core@5.0.0/',
         logger: m => {
           if (m.status === 'recognizing text') {
             const pct = Math.round(m.progress * 100);
@@ -1234,7 +1237,7 @@
 
         renderResults(data);
       } catch (e) {
-        showError('An error occurred while reading the file: ' + e.message);
+        showError('An error occurred while reading the file: ' + (e?.message || String(e) || 'Unknown error'));
         setDropzoneState('has-file');
         analyzeBtnWrapper.style.display = 'block';
         analyzeBtn.style.display = 'block';
