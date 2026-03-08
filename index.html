@@ -1060,7 +1060,7 @@
       if (window.Tesseract) return Promise.resolve(window.Tesseract);
       return new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = 'https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js';
+        s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
         s.onload = () => resolve(window.Tesseract);
         s.onerror = () => reject(new Error('Could not load OCR library. Check your internet connection.'));
         document.head.appendChild(s);
@@ -1071,10 +1071,10 @@
       loadingText.textContent = 'Loading OCR engine…';
       loadingSub.textContent = 'This runs entirely on your device — no data is sent anywhere.';
       const Tesseract = await loadTesseract();
-      const worker = await Tesseract.createWorker('heb+eng', Tesseract.OEM?.LSTM_ONLY ?? 1, {
-        workerPath: 'https://unpkg.com/tesseract.js@4.1.1/dist/worker.min.js',
+      const worker = await Tesseract.createWorker(['heb', 'eng'], 1, {
+        workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/worker.min.js',
         langPath: 'https://tessdata.projectnaptha.com/4.0.0',
-        corePath: 'https://unpkg.com/tesseract.js-core@5.0.0/',
+        corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5/tesseract-core-simd-lstm.wasm.js',
         logger: m => {
           if (m.status === 'recognizing text') {
             const pct = Math.round(m.progress * 100);
