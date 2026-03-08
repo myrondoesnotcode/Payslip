@@ -763,6 +763,38 @@
         english: 'Working Days', explanation: 'The number of working days in the pay period.' },
       { patterns: ['תאריך תשלום', 'תשלום ב'], category: 'info',
         english: 'Payment Date', explanation: 'The date the net salary is transferred to your bank account.' },
+
+      // ── Totals / summary labels ────────────────────────────────────────────
+      { patterns: ['סה"כ ניכויים', 'סה"כ ניכוי', 'ניכויים'], category: 'info',
+        english: 'Total Deductions', explanation: 'Sum of all deductions taken from gross salary.' },
+      { patterns: ['חיוב מעסיק', 'חיוב מעביד', 'חיוב'], category: 'info',
+        english: 'Employer Charge', explanation: 'Total cost to the employer.' },
+      { patterns: ['חיוב עובד', 'חיוב לעובד', 'חייב ל', 'חייב'], category: 'info',
+        english: 'Employee Charge', explanation: 'Gross pay before deductions.' },
+      { patterns: ['תעריף', 'תעריפים'], category: 'info',
+        english: 'Rate / Tariff', explanation: 'The hourly or daily rate used to calculate pay.' },
+      { patterns: ['שעות עבודה', 'שע"ע'], category: 'info',
+        english: 'Work Hours', explanation: 'Hours worked in the pay period.' },
+      { patterns: ['בריאות'], category: 'info',
+        english: 'Health', explanation: 'Health-related deduction or contribution.' },
+
+      // ── Additional earnings ────────────────────────────────────────────────
+      { patterns: ['צבירת חופש', 'צבירת חופשה', 'צבירת ח'], category: 'earnings',
+        english: 'Vacation Accrual', explanation: 'The monetary value of vacation days accrued this month. Israeli law requires employers to track accrued vacation, and this shows the month\'s addition to your vacation balance.' },
+
+      // ── Additional deductions ──────────────────────────────────────────────
+      { patterns: ['מסהנסה', 'מס הנסה', 'מסהכנסה'], category: 'deduction',
+        english: 'Income Tax (Mas Hachnasa)', explanation: 'Income tax deducted from salary. (OCR variant of מס הכנסה.)' },
+
+      // ── Additional employer contributions ──────────────────────────────────
+      { patterns: ['הפרשות מעסיק', 'הפרשות מעביד', 'הפרשות'], category: 'employer',
+        english: 'Employer Contributions', explanation: 'Total employer contributions to pension, severance, and training funds.' },
+
+      // ── Noise — boilerplate that should be silently ignored ────────────────
+      { patterns: ['תלוש משכורת', 'תלוש שכר', 'תלוש לחודש'], category: 'noise' },
+      { patterns: ['בוצע ע"י', 'מייד פינסים', 'חשבשבת', 'מרכבן', 'היילן', 'hilan', 'priority'], category: 'noise' },
+      { patterns: ['חברה לניהול', 'חברה בע"מ', 'בע"מ'], category: 'noise' },
+      { patterns: ['כתובת הלקוח', 'כתובת החברה', 'כתובת', 'טרומפלדור', 'מונטיפיורי', 'דיזנגוף', 'רוטשילד', 'הרצל'], category: 'noise' },
     ];
 
     // ─── Parser ───────────────────────────────────────────────────────────────
@@ -892,15 +924,16 @@
 
         let matched = false;
         for (const entry of DICTIONARY) {
-          if (entry.category === 'info') continue; // handled separately
           for (const pattern of entry.patterns) {
             if (norm.includes(pattern)) {
               matched = true;
-              const record = { hebrew: extractHebrewLabel(line), english: entry.english, explanation: entry.explanation, amount };
-              if (entry.category === 'earnings') results.earnings.push(record);
-              else if (entry.category === 'deduction') results.deductions.push(record);
-              else if (entry.category === 'employer') results.employer.push(record);
               results.matchedLines.add(norm);
+              if (entry.category !== 'info' && entry.category !== 'noise') {
+                const record = { hebrew: extractHebrewLabel(line), english: entry.english, explanation: entry.explanation, amount };
+                if (entry.category === 'earnings') results.earnings.push(record);
+                else if (entry.category === 'deduction') results.deductions.push(record);
+                else if (entry.category === 'employer') results.employer.push(record);
+              }
               break;
             }
           }
