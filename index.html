@@ -717,6 +717,15 @@
         english: 'Sick Pay', explanation: 'Pay for sick days taken. Israeli law requires employers to pay sick pay after the first sick day (the first day is unpaid).' },
       { patterns: ['שווי קרן השתלמות', 'שווי קה"ש'], category: 'earnings',
         english: 'Training Fund Imputed Income (Shvuy Keren Hishtalmut)', explanation: 'The employer\'s Keren Hishtalmut contribution is reported as income on your payslip. Up to a legal ceiling (~₪1,880/month for the employer portion) it is completely tax-exempt — meaning this income line does not actually cost you any taxes. Above the ceiling, the excess is taxable.' },
+      { patterns: ['קצובת טלפון', 'דמי טלפון', 'תוספת טלפון', 'טלפון'], category: 'earnings',
+        english: 'Phone Allowance', explanation: 'A monthly stipend to cover work-related mobile phone costs. Usually partially or fully tax-exempt up to a set limit.' },
+      { patterns: ['חניה', 'שכר חניה', 'דמי חניה', 'החזר חניה'], category: 'earnings',
+        english: 'Parking Allowance', explanation: 'Reimbursement or allowance for workplace parking costs.' },
+      { patterns: ['תוספת רכש', 'קצובת ביגוד', 'ביגוד'], category: 'earnings',
+        english: 'Clothing / Equipment Allowance', explanation: 'A lump-sum allowance for work clothing or professional equipment.' },
+      { patterns: ['תוספת שינוי', 'שינוי שכר'], category: 'earnings',
+        english: 'Salary Adjustment', explanation: 'A one-time or ongoing adjustment to salary, often due to a raise, correction, or cost-of-living update.' },
+
       { patterns: ['שכר ברוטו', 'ברוטו'], category: 'info',
         english: 'Gross Salary', explanation: 'Total earnings before any deductions are taken.' },
       { patterns: ['שכר נטו', 'נטו', 'לתשלום'], category: 'info',
@@ -741,6 +750,8 @@
         english: 'Loan Repayment', explanation: 'Repayment for an employer loan deducted directly from salary.' },
       { patterns: ['ארגון עובדים', 'הסתדרות', 'ועד'], category: 'deduction',
         english: 'Union Dues', explanation: 'Dues for a labor union (Histadrut or sector union) membership, if applicable.' },
+      { patterns: ['דמי ניהול', 'עמלות ניהול'], category: 'deduction',
+        english: 'Management / Admin Fees', explanation: 'Administrative or management fees charged by a pension fund or insurance company for managing your account.' },
 
       // ── Employer Contributions ─────────────────────────────────────────────
       { patterns: ['פנסיה מעסיק', 'פנסיה מעביד', 'קרן פנסיה מעסיק', 'פנסיה חלק מעביד'], category: 'employer',
@@ -798,6 +809,9 @@
       { patterns: ['סה"כ', 'סהכ', 'סה״כ'], category: 'noise' },
       { patterns: ['הפמט', 'פמט'], category: 'noise' },
       { patterns: ['תערף', 'תערפ', 'תערפי', 'תעריפ'], category: 'noise' },
+      { patterns: ['קוד עובד', 'מספר עובד', 'מס\' עובד', 'ת.ז.', 'תעודת זהות', 'ת"ז'], category: 'noise' },
+      { patterns: ['שם עובד', 'שם פרטי', 'שם משפחה', 'שם מלא'], category: 'noise' },
+      { patterns: ['מחלקה', 'יחידה', 'אגף', 'סניף'], category: 'noise' },
     ];
 
     // ─── Parser ───────────────────────────────────────────────────────────────
@@ -959,21 +973,39 @@
       results.deductions = dedupe(results.deductions);
       results.employer = dedupe(results.employer);
 
-      // Gross pay fallback: if ברוטו wasn't found explicitly, use the largest
-      // amount seen across all parsed lines (employer-charge columns are often
-      // the gross, and they're usually the biggest number on the payslip).
+      // Gross pay fallback: if ברוטו wasn't found explicitly, try to derive it.
+      // Strategy 1: sum of all recognized earnings lines.
+      // Strategy 2: largest single amount — but cap at 2.5× net to avoid
+      //   grabbing cumulative YTD or annual salary figures.
+      const MAX_GROSS_MULTIPLIER = 2.5; // above this vs net → likely annual total
+      const MAX_REASONABLE_GROSS = 120000; // ₪120k/month is a safe upper bound
       if (!results.gross) {
-        const allAmounts = [
-          ...results.earnings.map(r => r.amount),
-          ...results.deductions.map(r => r.amount),
-          ...results.unknown.map(r => r.amount),
-        ].filter(Boolean);
-        const biggest = allAmounts.length ? Math.max(...allAmounts) : null;
-        // Only use it if it's significantly larger than net (looks like gross)
-        if (biggest && results.net && biggest > results.net * 1.1) {
-          results.gross = biggest;
-        } else if (biggest && !results.net) {
-          results.gross = biggest;
+        const earningsSum = results.earnings.reduce((s, r) => s + (r.amount || 0), 0);
+        if (earningsSum > 0) {
+          // Only trust the sum if it's plausibly a monthly gross
+          const plausible = !results.net || (earningsSum <= results.net * MAX_GROSS_MULTIPLIER && earningsSum <= MAX_REASONABLE_GROSS);
+          if (plausible) {
+            results.gross = earningsSum;
+          }
+        }
+
+        if (!results.gross) {
+          const allAmounts = [
+            ...results.earnings.map(r => r.amount),
+            ...results.deductions.map(r => r.amount),
+            ...results.unknown.map(r => r.amount),
+          ].filter(Boolean);
+          const biggest = allAmounts.length ? Math.max(...allAmounts) : null;
+          if (biggest && biggest <= MAX_REASONABLE_GROSS) {
+            if (results.net) {
+              // Only accept if it's bigger than net but not suspiciously large
+              if (biggest > results.net * 1.05 && biggest <= results.net * MAX_GROSS_MULTIPLIER) {
+                results.gross = biggest;
+              }
+            } else {
+              results.gross = biggest;
+            }
+          }
         }
       }
 
@@ -1075,7 +1107,7 @@
       if (data.earnings.length) {
         showCard('card-earnings', `<div class="card-inner">
           <p class="card-title">Your Earnings</p>
-          ${renderLineTable(data.earnings, false)}
+          ${renderLineTable(data.earnings, true)}
         </div>`);
       }
 
