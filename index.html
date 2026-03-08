@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Israeli Payslip Explainer</title>
+  <style>
+    :root {
+      --bg: #f5f4f0;
+      --surface: #ffffff;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --text: #111827;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --success: #16a34a;
+      --success-light: #f0fdf4;
+      --warning: #d97706;
+      --warning-light: #fffbeb;
+      --error: #dc2626;
+      --error-light: #fef2f2;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 24px 16px 64px;
+    }
+
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      padding: 40px 0 32px;
+    }
+    .header-flags {
+      font-size: 2rem;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .header-flags span { line-height: 1; }
+    .header-divider {
+      width: 1.5px;
+      height: 28px;
+      background: var(--border);
+      display: inline-block;
+      vertical-align: middle;
+      margin: 0 2px;
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+    .subtitle .hebrew {
+      direction: rtl;
+      unicode-bidi: embed;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    /* Upload zone */
+    #upload-section { padding: 0; overflow: hidden; }
+
+    .dropzone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: center;
+      position: relative;
+      min-height: 200px;
+      background: var(--surface);
+    }
+    .dropzone:hover,
+    .dropzone.drag-over {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+    .dropzone.has-file {
+      border-style: solid;
+      border-color: var(--success);
+      background: var(--success-light);
+      padding: 16px;
+      min-height: unset;
+    }
+    .dropzone.loading {
+      border-style: solid;
+      border-color: var(--border);
+      pointer-events: none;
+    }
+
+    .upload-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+      line-height: 1;
+    }
+    .upload-title {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .upload-hint {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    /* Preview state */
+    .preview-wrapper {
+      width: 100%;
+      display: none;
+    }
+    .has-file .preview-wrapper { display: block; }
+    .has-file .upload-idle { display: none; }
+
+    #preview-canvas {
+      width: 100%;
+      max-height: 320px;
+      object-fit: contain;
+      border-radius: 6px;
+      display: block;
+      box-shadow: var(--shadow);
+    }
+    .preview-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+    .file-name {
+      font-size: 0.875rem;
+      color: var(--text);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .file-name-check { color: var(--success); }
+    .btn-change {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+    .btn-change:hover { background: var(--border); color: var(--text); }
+
+    /* Loading state */
+    .loading-wrapper {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 32px;
+    }
+    .loading .upload-idle,
+    .loading .preview-wrapper { display: none; }
+    .loading .loading-wrapper { display: flex; }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    /* Analyze button */
+    #analyze-btn {
+      display: none;
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 0;
+    }
+    #analyze-btn:hover { background: var(--primary-hover); }
+    #analyze-btn:active { transform: scale(0.99); }
+    #analyze-btn-wrapper {
+      display: none;
+      padding: 0 24px 24px;
+      background: var(--surface);
+      border-radius: 0 0 var(--radius) var(--radius);
+    }
+
+    /* Error message */
+    .error-banner {
+      display: none;
+      padding: 12px 16px;
+      background: var(--error-light);
+      border: 1px solid #fecaca;
+      border-radius: var(--radius-sm);
+      color: var(--error);
+      font-size: 0.875rem;
+      margin-top: 12px;
+    }
+    .error-banner.visible { display: block; }
+
+    /* Results */
+    #results-section { display: none; }
+    #results-section.visible { display: block; }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .results-header h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .btn-reset {
+      font-size: 0.875rem;
+      color: var(--primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      transition: background 0.15s;
+      font-weight: 500;
+    }
+    .btn-reset:hover { background: var(--primary-light); }
+
+    /* Summary card */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    .summary-item {
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+    }
+    .summary-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .summary-value {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+    .summary-value.net { color: var(--success); }
+    .summary-value.gross { color: var(--primary); }
+    .summary-period {
+      margin-top: 12px;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* Line items table */
+    .line-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .line-table tr { border-bottom: 1px solid var(--bg); }
+    .line-table tr:last-child { border-bottom: none; }
+    .line-table td {
+      padding: 10px 4px;
+      font-size: 0.9rem;
+    }
+    .line-table .col-hebrew {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      direction: rtl;
+      unicode-bidi: embed;
+      width: 30%;
+    }
+    .line-table .col-english {
+      color: var(--text);
+      font-weight: 500;
+    }
+    .line-table .col-amount {
+      text-align: right;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .line-table .col-pct {
+      text-align: right;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      width: 48px;
+      padding-left: 8px;
+    }
+
+    /* Expandable explanation */
+    .explanation-row td {
+      padding: 0 4px 10px;
+      border-bottom: 1px solid var(--bg);
+    }
+    .explanation-row:last-child td { border-bottom: none; }
+    .explanation-text {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      padding: 8px 12px;
+      background: var(--bg);
+      border-radius: 6px;
+      border-left: 3px solid var(--border);
+    }
+
+    /* Notes */
+    .notes-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .notes-list li {
+      font-size: 0.875rem;
+      color: var(--text);
+      padding: 10px 14px;
+      background: var(--warning-light);
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--warning);
+      line-height: 1.5;
+    }
+
+    /* Unknown terms */
+    .unknown-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .unknown-tag {
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      background: var(--bg);
+      border-radius: 100px;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      direction: rtl;
+      unicode-bidi: embed;
+    }
+
+    /* Confidence badge */
+    .confidence-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 100px;
+      font-weight: 500;
+    }
+    .confidence-high { background: var(--success-light); color: var(--success); }
+    .confidence-medium { background: var(--warning-light); color: var(--warning); }
+    .confidence-low { background: var(--error-light); color: var(--error); }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      h1 { font-size: 1.4rem; }
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+      .line-table .col-hebrew { display: none; }
+      .card { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-flags">
+        <span>🇺🇸</span>
+        <div class="header-divider"></div>
+        <span>🇮🇱</span>
+      </div>
+      <h1>Payslip Explainer</h1>
+      <p class="subtitle">Understand your <span class="hebrew">תלוש משכורת</span> in English</p>
+    </header>
+
+    <!-- Upload Card -->
+    <div id="upload-section" class="card" style="padding:0">
+      <label class="dropzone" id="dropzone" for="file-input">
+        <!-- Idle state -->
+        <div class="upload-idle">
+          <div class="upload-icon">📄</div>
+          <p class="upload-title">Drop your payslip here</p>
+          <p class="upload-hint">PDF file (digital, not scanned)</p>
+          <span class="btn-outline">Choose file</span>
+        </div>
+
+        <!-- Preview state -->
+        <div class="preview-wrapper">
+          <canvas id="preview-canvas"></canvas>
+          <div class="preview-info">
+            <span class="file-name">
+              <span class="file-name-check">✓</span>
+              <span id="file-name-text">payslip.pdf</span>
+            </span>
+            <button class="btn-change" id="change-btn" type="button">Change</button>
+          </div>
+        </div>
+
+        <!-- Loading state -->
+        <div class="loading-wrapper">
+          <div class="spinner"></div>
+          <p class="loading-text" id="loading-text">Reading payslip…</p>
+        </div>
+      </label>
+
+      <input type="file" id="file-input" accept=".pdf,image/jpeg,image/png,image/webp" style="display:none">
+
+      <div id="analyze-btn-wrapper">
+        <button id="analyze-btn" type="button">Explain This Payslip →</button>
+      </div>
+
+      <div id="file-error" class="error-banner" style="margin: 0 24px 16px;"></div>
+    </div>
+
+    <!-- Results -->
+    <div id="results-section">
+      <div class="results-header">
+        <h2>Your Payslip Explained</h2>
+        <button class="btn-reset" id="reset-btn">↑ Analyze another</button>
+      </div>
+
+      <div id="card-summary" class="card" style="display:none"></div>
+      <div id="card-earnings" class="card" style="display:none"></div>
+      <div id="card-deductions" class="card" style="display:none"></div>
+      <div id="card-employer" class="card" style="display:none"></div>
+      <div id="card-notes" class="card" style="display:none"></div>
+      <div id="card-unknown" class="card" style="display:none"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs';
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
+
+    // ─── Israeli Payslip Dictionary ───────────────────────────────────────────
+    // Maps Hebrew terms (normalized, no nikud) → { english, category, explanation }
+    // Categories: earnings | deduction | employer | info
+    const DICTIONARY = [
+      // ── Earnings ──────────────────────────────────────────────────────────
+      { patterns: ['שכר יסוד', 'שכר בסיס', 'משכורת יסוד', 'שכר'], category: 'earnings',
+        english: 'Base Salary', explanation: 'Your core monthly salary before any additions or deductions.' },
+      { patterns: ['שעות נוספות', 'שע"נ', 'שעות נוסף'], category: 'earnings',
+        english: 'Overtime', explanation: 'Pay for hours worked beyond your standard working hours. In Israel, overtime is regulated by law — the first 2 hours are paid at 125% and additional hours at 150%.' },
+      { patterns: ['נסיעות', 'הסעות', 'דמי נסיעה', 'החזר נסיעות'], category: 'earnings',
+        english: 'Travel / Commute Allowance', explanation: 'Reimbursement for commuting costs (bus, train). Israeli law requires employers to cover transportation expenses up to a set monthly cap.' },
+      { patterns: ['אש"ל', 'אוכל', 'ארוחות', 'שי לאוכל', 'קצובת אוכל'], category: 'earnings',
+        english: 'Meal Allowance', explanation: 'A monthly allowance toward meals. Up to a certain amount it is tax-exempt.' },
+      { patterns: ['בונוס', 'מענק', 'פרמיה', 'עמלה'], category: 'earnings',
+        english: 'Bonus / Commission', explanation: 'A one-time or periodic extra payment on top of regular salary.' },
+      { patterns: ['שי לחג', 'שי חג', 'מתנה'], category: 'earnings',
+        english: 'Holiday Gift / Voucher', explanation: 'A gift given by the employer around holidays (Rosh Hashana, Pesach, etc.). Tax-exempt up to a government-set limit per year.' },
+      { patterns: ['החזר הוצאות', 'הוצאות'], category: 'earnings',
+        english: 'Expense Reimbursement', explanation: 'Reimbursement for work-related expenses you paid out-of-pocket.' },
+      { patterns: ['תוספת ותק', 'ותק'], category: 'earnings',
+        english: 'Seniority Bonus', explanation: 'Additional pay for years of service with the employer.' },
+      { patterns: ['תוספת יוקר', 'יוקר המחייה'], category: 'earnings',
+        english: 'Cost-of-Living Allowance', explanation: 'A cost-of-living supplement that may be set by a collective agreement or government regulation.' },
+      { patterns: ['כוננות', 'תורנות'], category: 'earnings',
+        english: 'On-Call / Duty Pay', explanation: 'Pay for being on-call or on-duty outside regular hours.' },
+      { patterns: ['דמי הבראה', 'הבראה'], category: 'earnings',
+        english: 'Recreation Pay (Havra\'a)', explanation: 'An annual benefit paid to employees, equivalent to a few days of pay. Mandated by Israeli labor law to support rest and recuperation. Usually paid once or twice a year.' },
+      { patterns: ['חופשה', 'ימי חופשה', 'פדיון חופשה'], category: 'earnings',
+        english: 'Vacation Pay / Payout', explanation: 'Pay for vacation days taken or paid out. Israeli law grants employees a set number of vacation days per year based on seniority.' },
+      { patterns: ['מחלה', 'ימי מחלה'], category: 'earnings',
+        english: 'Sick Pay', explanation: 'Pay for sick days taken. Israeli law requires employers to pay sick pay after the first sick day (the first day is unpaid).' },
+      { patterns: ['שכר ברוטו', 'ברוטו'], category: 'info',
+        english: 'Gross Salary', explanation: 'Total earnings before any deductions are taken.' },
+      { patterns: ['שכר נטו', 'נטו', 'לתשלום'], category: 'info',
+        english: 'Net Salary (Take-Home Pay)', explanation: 'The amount actually deposited to your bank account after all deductions.' },
+
+      // ── Deductions ─────────────────────────────────────────────────────────
+      { patterns: ['מס הכנסה', 'מס\' הכנסה', 'מס הכנסה חייב'], category: 'deduction',
+        english: 'Income Tax (Mas Hachnasa)', explanation: 'Israel uses a progressive income tax system with brackets ranging from 10% to 50%. Every resident gets baseline tax credit points that reduce the actual tax owed. The more you earn, the higher your bracket.' },
+      { patterns: ['ביטוח לאומי', 'ב.ל.', 'ב"ל'], category: 'deduction',
+        english: 'National Insurance (Bituach Leumi)', explanation: 'Contributions to Israel\'s national social security system. This funds disability benefits, unemployment insurance, maternity pay, work accident compensation, and old-age pensions. The employee rate is around 3.5–7% depending on salary level.' },
+      { patterns: ['מס בריאות', 'ביטוח בריאות', 'קופ"ח', 'קופת חולים'], category: 'deduction',
+        english: 'Health Tax (Mas Briut)', explanation: 'A mandatory contribution to Israel\'s public healthcare system. This gives you access to healthcare through one of the four Kupot Holim (HMOs): Clalit, Maccabi, Meuhedet, or Leumit. The rate is about 3.1–5% depending on salary level.' },
+      { patterns: ['קרן פנסיה', 'פנסיה', 'פנסיה חובה'], category: 'deduction',
+        english: 'Pension Fund — Employee', explanation: 'Your own contribution to a mandatory pension fund. Israeli law requires all employees to save for retirement. The employee contributes around 6% and the employer contributes an additional 6.5%+. You\'ll receive this as a monthly pension when you retire.' },
+      { patterns: ['קרן השתלמות', 'קה"ש', 'קה"ש עובד'], category: 'deduction',
+        english: 'Training Fund — Employee (Keren Hishtalmut)', explanation: 'A tax-advantaged savings vehicle unique to Israel. You contribute ~2.5% and your employer contributes ~7.5%. After 6 years the full balance is yours, tax-free, and can be used for any purpose. Before 6 years it can be withdrawn for educational purposes. One of the best financial benefits in Israel.' },
+      { patterns: ['ביטוח מנהלים', 'ב.מ.', 'ביטוח מנהל'], category: 'deduction',
+        english: 'Executive Insurance (Bituach Menahalim)', explanation: 'An older alternative to pension funds that combines life insurance, savings, and severance in one policy. Often replaced by pension funds for newer employees but still common.' },
+      { patterns: ['קרן גמלאות', 'גמלאות'], category: 'deduction',
+        english: 'Pension / Provident Fund', explanation: 'Contributions to a pension or provident fund for retirement savings.' },
+      { patterns: ['ניכוי הלוואה', 'הלוואה', 'תשלום הלוואה'], category: 'deduction',
+        english: 'Loan Repayment', explanation: 'Repayment for an employer loan deducted directly from salary.' },
+      { patterns: ['ארגון עובדים', 'הסתדרות', 'ועד'], category: 'deduction',
+        english: 'Union Dues', explanation: 'Dues for a labor union (Histadrut or sector union) membership, if applicable.' },
+
+      // ── Employer Contributions ─────────────────────────────────────────────
+      { patterns: ['פנסיה מעסיק', 'פנסיה מעביד', 'קרן פנסיה מעסיק', 'פנסיה חלק מעביד'], category: 'employer',
+        english: 'Pension Fund — Employer', explanation: 'Your employer\'s contribution to your pension fund (typically 6.5%). This is on top of your salary and goes directly into your retirement savings.' },
+      { patterns: ['קה"ש מעסיק', 'קרן השתלמות מעסיק', 'קה"ש מעביד', 'קרן השתלמות מעביד'], category: 'employer',
+        english: 'Training Fund — Employer (Keren Hishtalmut)', explanation: 'Your employer\'s contribution to your Keren Hishtalmut (typically 7.5%). This is a significant extra benefit — it\'s essentially free money that will be yours tax-free after 6 years.' },
+      { patterns: ['פיצויים', 'קרן פיצויים', 'קרן פיצויי פיטורים', 'פיצויי פיטורים'], category: 'employer',
+        english: 'Severance Reserve', explanation: 'Your employer sets aside ~8.33% of your monthly salary into a severance fund. If you are ever let go, you are entitled to this money (1 month per year of work). In many pension arrangements this is integrated into the pension fund itself (Section 14 arrangement).' },
+      { patterns: ['ביטוח אובדן כושר עבודה', 'אובדן כושר עבודה', 'אכ"ע', 'נכות מקצועית'], category: 'employer',
+        english: 'Disability Insurance', explanation: 'Insurance that pays a portion of your salary if you become unable to work due to illness or injury. Often paid by the employer as part of the pension arrangement.' },
+      { patterns: ['ביטוח חיים', 'ריסק', 'כיסוי ריסק'], category: 'employer',
+        english: 'Life Insurance', explanation: 'A life insurance policy provided as part of your benefits package, often integrated with the pension plan.' },
+
+      // ── Info / Other ───────────────────────────────────────────────────────
+      { patterns: ['נקודות זיכוי', 'נק\' זיכוי', 'זיכוי מס'], category: 'info',
+        english: 'Tax Credit Points', explanation: 'Every Israeli resident receives basic tax credit points that directly reduce income tax. Each point is worth a fixed monthly amount set by the government. Israeli citizens get 2.25 points, new immigrants (Olim Chadashim) receive extra points for 3.5 years.' },
+      { patterns: ['משרה חלקית', 'אחוז משרה', '% משרה'], category: 'info',
+        english: 'Part-Time Percentage', explanation: 'The percentage of a full-time position you work (e.g., 100% = full time, 50% = half time). Salary and most benefits are proportional.' },
+      { patterns: ['ימי עבודה', 'ימים'], category: 'info',
+        english: 'Working Days', explanation: 'The number of working days in the pay period.' },
+      { patterns: ['תאריך תשלום', 'תשלום ב'], category: 'info',
+        english: 'Payment Date', explanation: 'The date the net salary is transferred to your bank account.' },
+    ];
+
+    // ─── Parser ───────────────────────────────────────────────────────────────
+    // Normalize Hebrew text (remove nikud, extra spaces)
+    function normalize(text) {
+      return text
+        .replace(/[\u0591-\u05C7]/g, '') // remove nikud (vowel marks)
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    // Extract text from a PDF page
+    async function extractPdfText(file) {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        // Group items by approximate Y position to form lines
+        const lines = {};
+        for (const item of content.items) {
+          if (!item.str) continue;
+          const y = Math.round(item.transform[5] / 5) * 5; // bucket by ~5px rows
+          if (!lines[y]) lines[y] = [];
+          lines[y].push(item.str);
+        }
+        // Sort by Y descending (top to bottom) and join
+        const sorted = Object.entries(lines).sort((a, b) => b[0] - a[0]);
+        for (const [, tokens] of sorted) {
+          fullText += tokens.join(' ') + '\n';
+        }
+      }
+      return fullText;
+    }
+
+    // Render PDF first page to canvas for preview
+    async function renderPdfPreview(file) {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 1.5 });
+      const canvas = document.getElementById('preview-canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext('2d');
+      await page.render({ canvasContext: ctx, viewport }).promise;
+    }
+
+    // Extract NIS amounts near a text match
+    function extractAmount(line) {
+      // Match patterns like: 5,320.00  or  5320  or  ₪5,320
+      const match = line.match(/[₪]?\s*([\d,]+(?:\.\d{1,2})?)/);
+      if (!match) return null;
+      const num = parseFloat(match[1].replace(/,/g, ''));
+      return isNaN(num) || num <= 0 ? null : num;
+    }
+
+    function formatNIS(amount) {
+      if (amount == null) return null;
+      return '₪' + amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    }
+
+    // Parse payslip text into structured data
+    function parsePayslip(rawText) {
+      const lines = rawText.split('\n').map(normalize).filter(Boolean);
+
+      const results = {
+        period: null,
+        gross: null,
+        net: null,
+        earnings: [],
+        deductions: [],
+        employer: [],
+        notes: [],
+        unknown: [],
+        matchedLines: new Set(),
+      };
+
+      // Detect period (month + year)
+      const monthsHebrew = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+      const monthsEnglish = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      for (const line of lines) {
+        for (let i = 0; i < monthsHebrew.length; i++) {
+          if (line.includes(monthsHebrew[i])) {
+            const yearMatch = line.match(/20\d{2}/);
+            results.period = monthsEnglish[i] + (yearMatch ? ' ' + yearMatch[0] : '');
+            break;
+          }
+        }
+        // Also check numeric date patterns like 01/2025
+        if (!results.period) {
+          const numMatch = line.match(/(\d{1,2})[\/\-](\d{4})/);
+          if (numMatch) {
+            const month = parseInt(numMatch[1]);
+            if (month >= 1 && month <= 12) {
+              results.period = monthsEnglish[month - 1] + ' ' + numMatch[2];
+            }
+          }
+        }
+      }
+
+      // Match each line against dictionary
+      for (const line of lines) {
+        const norm = normalize(line);
+        const amount = extractAmount(line);
+
+        // Check gross / net
+        if (/שכר ברוטו|ברוטו/.test(norm) && amount) {
+          results.gross = amount;
+          results.matchedLines.add(norm);
+          continue;
+        }
+        if (/שכר נטו|לתשלום|נטו/.test(norm) && amount) {
+          results.net = amount;
+          results.matchedLines.add(norm);
+          continue;
+        }
+
+        let matched = false;
+        for (const entry of DICTIONARY) {
+          if (entry.category === 'info') continue; // handled separately
+          for (const pattern of entry.patterns) {
+            if (norm.includes(pattern)) {
+              matched = true;
+              const record = { hebrew: extractHebrewLabel(line), english: entry.english, explanation: entry.explanation, amount };
+              if (entry.category === 'earnings') results.earnings.push(record);
+              else if (entry.category === 'deduction') results.deductions.push(record);
+              else if (entry.category === 'employer') results.employer.push(record);
+              results.matchedLines.add(norm);
+              break;
+            }
+          }
+          if (matched) break;
+        }
+
+        // Collect unmatched Hebrew lines with amounts (likely unlabeled items)
+        if (!matched && amount && /[\u05D0-\u05EA]/.test(line)) {
+          const hebrewLabel = extractHebrewLabel(line);
+          if (hebrewLabel.length > 1) {
+            results.unknown.push({ hebrew: hebrewLabel, amount });
+          }
+        }
+      }
+
+      // Deduplicate (same english term appearing multiple times — take first)
+      results.earnings = dedupe(results.earnings);
+      results.deductions = dedupe(results.deductions);
+      results.employer = dedupe(results.employer);
+
+      // Generate notes
+      if (results.gross && results.net) {
+        const deductionTotal = results.gross - results.net;
+        const deductionPct = ((deductionTotal / results.gross) * 100).toFixed(0);
+        results.notes.push(`Total deductions are ₪${deductionTotal.toLocaleString()} (${deductionPct}% of gross salary).`);
+      }
+
+      const khBtn = results.deductions.find(d => d.english.includes('Training Fund'));
+      if (khBtn) {
+        results.notes.push('💡 Keren Hishtalmut is one of Israel\'s best financial benefits. After 6 years, you can withdraw the balance completely tax-free for any purpose.');
+      }
+
+      const pension = results.deductions.find(d => d.english.includes('Pension'));
+      const employerPension = results.employer.find(d => d.english.includes('Pension'));
+      if (pension && employerPension && pension.amount && employerPension.amount) {
+        results.notes.push(`💡 In addition to your ₪${pension.amount.toLocaleString()} pension contribution, your employer adds ₪${employerPension.amount.toLocaleString()} — this extra amount goes directly to your retirement.`);
+      }
+
+      if (results.unknown.length > 0) {
+        results.notes.push(`⚠️ Some items on your payslip weren't automatically recognized (shown below). They may be company-specific allowances or deductions.`);
+      }
+
+      return results;
+    }
+
+    function extractHebrewLabel(line) {
+      // Extract the Hebrew word(s) from the line
+      const match = line.match(/[\u05D0-\u05EA"'\s]+/g);
+      if (!match) return line.substring(0, 30);
+      return match.join('').replace(/\s+/g, ' ').trim().substring(0, 40);
+    }
+
+    function dedupe(items) {
+      const seen = new Set();
+      return items.filter(item => {
+        if (seen.has(item.english)) return false;
+        seen.add(item.english);
+        return true;
+      });
+    }
+
+    // ─── Rendering ────────────────────────────────────────────────────────────
+    function showCard(id, html) {
+      const el = document.getElementById(id);
+      el.innerHTML = html;
+      el.style.display = 'block';
+    }
+
+    function renderLineTable(items, showExplanations = false) {
+      if (!items.length) return '<p style="color:var(--text-muted);font-size:.875rem;">No items found</p>';
+      let html = '<table class="line-table">';
+      for (const item of items) {
+        const amtStr = item.amount ? formatNIS(item.amount) : '—';
+        html += `<tr>
+          <td class="col-hebrew">${item.hebrew || ''}</td>
+          <td class="col-english">${item.english}</td>
+          <td class="col-amount">${amtStr}</td>
+        </tr>`;
+        if (showExplanations && item.explanation) {
+          html += `<tr class="explanation-row"><td colspan="3">
+            <div class="explanation-text">${item.explanation}</div>
+          </td></tr>`;
+        }
+      }
+      html += '</table>';
+      return html;
+    }
+
+    function renderResults(data) {
+      // Summary card
+      const gross = data.gross ? formatNIS(data.gross) : '—';
+      const net = data.net ? formatNIS(data.net) : '—';
+      const deducted = (data.gross && data.net) ? formatNIS(data.gross - data.net) : '—';
+      const periodStr = data.period ? `<p class="summary-period">Pay period: <strong>${data.period}</strong></p>` : '';
+
+      showCard('card-summary', `
+        <p class="card-title">Summary</p>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="summary-label">Gross Pay</div>
+            <div class="summary-value gross">${gross}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Total Deductions</div>
+            <div class="summary-value">${deducted}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Net Pay</div>
+            <div class="summary-value net">${net}</div>
+          </div>
+        </div>
+        ${periodStr}
+      `);
+
+      // Earnings
+      if (data.earnings.length) {
+        showCard('card-earnings', `
+          <p class="card-title">Your Earnings</p>
+          ${renderLineTable(data.earnings, false)}
+        `);
+      }
+
+      // Deductions (with explanations)
+      if (data.deductions.length) {
+        showCard('card-deductions', `
+          <p class="card-title">Deductions from Your Pay</p>
+          ${renderLineTable(data.deductions, true)}
+        `);
+      }
+
+      // Employer contributions
+      if (data.employer.length) {
+        showCard('card-employer', `
+          <p class="card-title">Employer Contributions (not deducted from your pay)</p>
+          ${renderLineTable(data.employer, true)}
+        `);
+      }
+
+      // Notes
+      if (data.notes.length) {
+        const items = data.notes.map(n => `<li>${n}</li>`).join('');
+        showCard('card-notes', `
+          <p class="card-title">Notes</p>
+          <ul class="notes-list">${items}</ul>
+        `);
+      }
+
+      // Unknown items
+      if (data.unknown.length) {
+        const tags = data.unknown.map(u => `<span class="unknown-tag">${u.hebrew} ${u.amount ? formatNIS(u.amount) : ''}</span>`).join('');
+        showCard('card-unknown', `
+          <p class="card-title">Unrecognized Items</p>
+          <p style="font-size:.875rem;color:var(--text-muted);margin-bottom:12px;">These items appear on your payslip but use non-standard Hebrew. They may be company-specific allowances, special bonuses, or agreements. Ask your HR department to explain them.</p>
+          <div class="unknown-list">${tags}</div>
+        `);
+      }
+
+      document.getElementById('results-section').classList.add('visible');
+      document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ─── App State ────────────────────────────────────────────────────────────
+    let currentFile = null;
+
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('file-input');
+    const analyzeBtn = document.getElementById('analyze-btn');
+    const analyzeBtnWrapper = document.getElementById('analyze-btn-wrapper');
+    const fileNameText = document.getElementById('file-name-text');
+    const loadingText = document.getElementById('loading-text');
+    const fileError = document.getElementById('file-error');
+    const resetBtn = document.getElementById('reset-btn');
+    const changeBtn = document.getElementById('change-btn');
+
+    function showError(msg) {
+      fileError.textContent = msg;
+      fileError.classList.add('visible');
+    }
+    function clearError() {
+      fileError.classList.remove('visible');
+    }
+
+    function setDropzoneState(state) {
+      dropzone.classList.remove('has-file', 'loading', 'drag-over');
+      if (state) dropzone.classList.add(state);
+    }
+
+    async function handleFile(file) {
+      clearError();
+
+      // Validate
+      const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        showError('Please upload a PDF or image file (JPG, PNG).');
+        return;
+      }
+      if (file.size > 30 * 1024 * 1024) {
+        showError('File is too large (max 30 MB).');
+        return;
+      }
+
+      currentFile = file;
+      fileNameText.textContent = file.name;
+
+      // Show preview
+      setDropzoneState('loading');
+      loadingText.textContent = 'Loading preview…';
+
+      try {
+        if (file.type === 'application/pdf') {
+          await renderPdfPreview(file);
+        } else {
+          // Image: draw to canvas
+          const img = new Image();
+          const url = URL.createObjectURL(file);
+          await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = url;
+          });
+          const canvas = document.getElementById('preview-canvas');
+          const maxW = 800;
+          const scale = Math.min(1, maxW / img.naturalWidth);
+          canvas.width = img.naturalWidth * scale;
+          canvas.height = img.naturalHeight * scale;
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          URL.revokeObjectURL(url);
+        }
+        setDropzoneState('has-file');
+        analyzeBtnWrapper.style.display = 'block';
+        analyzeBtn.style.display = 'block';
+      } catch (e) {
+        showError('Could not preview the file. Please make sure it\'s a valid PDF or image.');
+        setDropzoneState(null);
+        currentFile = null;
+      }
+    }
+
+    async function analyzePayslip() {
+      if (!currentFile) return;
+      clearError();
+
+      setDropzoneState('loading');
+      analyzeBtnWrapper.style.display = 'none';
+      loadingText.textContent = 'Reading payslip text…';
+
+      // Hide previous results
+      document.getElementById('results-section').classList.remove('visible');
+      ['card-summary','card-earnings','card-deductions','card-employer','card-notes','card-unknown']
+        .forEach(id => { document.getElementById(id).style.display = 'none'; });
+
+      try {
+        let text = '';
+        if (currentFile.type === 'application/pdf') {
+          text = await extractPdfText(currentFile);
+        } else {
+          showError('Image-based payslips require the text to be selectable. Please use a digital PDF version of your payslip.');
+          setDropzoneState('has-file');
+          analyzeBtnWrapper.style.display = 'block';
+          analyzeBtn.style.display = 'block';
+          return;
+        }
+
+        if (!text || text.trim().length < 20) {
+          showError('This PDF appears to be a scanned image and doesn\'t contain selectable text. Please ask your employer for a digital (non-scanned) version of your payslip.');
+          setDropzoneState('has-file');
+          analyzeBtnWrapper.style.display = 'block';
+          analyzeBtn.style.display = 'block';
+          return;
+        }
+
+        loadingText.textContent = 'Analyzing…';
+        const data = parsePayslip(text);
+
+        setDropzoneState('has-file');
+        analyzeBtnWrapper.style.display = 'block';
+        analyzeBtn.style.display = 'block';
+        analyzeBtn.textContent = 'Re-analyze';
+
+        if (!data.gross && !data.net && !data.earnings.length && !data.deductions.length) {
+          showError('The payslip was read but no recognizable items were found. The format may be unusual — try a different file or contact support.');
+          return;
+        }
+
+        renderResults(data);
+      } catch (e) {
+        showError('An error occurred while reading the file: ' + e.message);
+        setDropzoneState('has-file');
+        analyzeBtnWrapper.style.display = 'block';
+        analyzeBtn.style.display = 'block';
+      }
+    }
+
+    function resetApp() {
+      currentFile = null;
+      fileInput.value = '';
+      setDropzoneState(null);
+      analyzeBtnWrapper.style.display = 'none';
+      analyzeBtn.style.display = 'none';
+      analyzeBtn.textContent = 'Explain This Payslip →';
+      clearError();
+      document.getElementById('results-section').classList.remove('visible');
+      ['card-summary','card-earnings','card-deductions','card-employer','card-notes','card-unknown']
+        .forEach(id => { document.getElementById(id).style.display = 'none'; });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ─── Event Listeners ──────────────────────────────────────────────────────
+    fileInput.addEventListener('change', e => {
+      if (e.target.files[0]) handleFile(e.target.files[0]);
+    });
+
+    // Drag and drop
+    ['dragenter','dragover'].forEach(evt => {
+      dropzone.addEventListener(evt, e => {
+        e.preventDefault();
+        if (!dropzone.classList.contains('has-file') && !dropzone.classList.contains('loading')) {
+          dropzone.classList.add('drag-over');
+        }
+      });
+    });
+    dropzone.addEventListener('dragleave', e => {
+      if (!dropzone.contains(e.relatedTarget)) {
+        dropzone.classList.remove('drag-over');
+      }
+    });
+    dropzone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropzone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    });
+
+    // Prevent the label click from opening file picker when already has file
+    dropzone.addEventListener('click', e => {
+      if (dropzone.classList.contains('has-file') || dropzone.classList.contains('loading')) {
+        e.preventDefault();
+      }
+    });
+
+    changeBtn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      resetApp();
+      // Programmatically open file picker
+      fileInput.click();
+    });
+
+    analyzeBtn.addEventListener('click', analyzePayslip);
+    resetBtn.addEventListener('click', resetApp);
+  </script>
+</body>
+</html>
