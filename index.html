@@ -478,6 +478,7 @@
             </span>
             <button class="btn-change" id="change-btn" type="button">Change</button>
           </div>
+          <div id="text-layer-status" style="display:none; margin-top:10px; padding:10px 12px; border-radius:8px; font-size:0.82rem; line-height:1.5;"></div>
         </div>
 
         <!-- Loading state -->
@@ -941,6 +942,18 @@
       try {
         if (file.type === 'application/pdf') {
           await renderPdfPreview(file);
+          // Probe for text layer
+          loadingText.textContent = 'Checking for text layer…';
+          const probeText = await extractPdfText(file);
+          const hasText = probeText && probeText.trim().length >= 20;
+          const statusEl = document.getElementById('text-layer-status');
+          if (hasText) {
+            statusEl.style.cssText = 'display:block;margin-top:10px;padding:10px 12px;border-radius:8px;font-size:0.82rem;line-height:1.5;background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;';
+            statusEl.innerHTML = '✓ <strong>Text layer found.</strong> This PDF can be read — click below to analyze it.';
+          } else {
+            statusEl.style.cssText = 'display:block;margin-top:10px;padding:10px 12px;border-radius:8px;font-size:0.82rem;line-height:1.5;background:#fefce8;border:1px solid #fde68a;color:#92400e;';
+            statusEl.innerHTML = '⚠ <strong>No text layer detected.</strong> This looks like a scanned image PDF. Try opening it on your computer, selecting all text (Ctrl+A / Cmd+A) — if nothing highlights, ask your employer\'s payroll department for a digital copy.';
+          }
         } else {
           // Image: draw to canvas
           const img = new Image();
@@ -1030,6 +1043,7 @@
       analyzeBtnWrapper.style.display = 'none';
       analyzeBtn.style.display = 'none';
       analyzeBtn.textContent = 'Explain This Payslip →';
+      document.getElementById('text-layer-status').style.display = 'none';
       clearError();
       document.getElementById('results-section').classList.remove('visible');
       ['card-summary','card-earnings','card-deductions','card-employer','card-notes','card-unknown']
