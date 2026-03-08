@@ -795,6 +795,9 @@
       { patterns: ['בוצע ע"י', 'מייד פינסים', 'חשבשבת', 'מרכבן', 'היילן', 'hilan', 'priority'], category: 'noise' },
       { patterns: ['חברה לניהול', 'חברה בע"מ', 'בע"מ'], category: 'noise' },
       { patterns: ['כתובת הלקוח', 'כתובת החברה', 'כתובת', 'טרומפלדור', 'מונטיפיורי', 'דיזנגוף', 'רוטשילד', 'הרצל'], category: 'noise' },
+      { patterns: ['סה"כ', 'סהכ', 'סה״כ'], category: 'noise' },
+      { patterns: ['הפמט', 'פמט'], category: 'noise' },
+      { patterns: ['תערף', 'תערפ', 'תערפי', 'תעריפ'], category: 'noise' },
     ];
 
     // ─── Parser ───────────────────────────────────────────────────────────────
@@ -844,13 +847,15 @@
       await page.render({ canvasContext: ctx, viewport }).promise;
     }
 
-    // Extract NIS amounts near a text match
+    // Extract NIS amounts from a line.
+    // Israeli payslip tables have: [quantity] [rate] [amount] — we want the last
+    // significant number (rightmost column = total amount).
+    // Numbers < 1 are quantities/coefficients, not monetary amounts.
     function extractAmount(line) {
-      // Match patterns like: 5,320.00  or  5320  or  ₪5,320
-      const match = line.match(/[₪]?\s*([\d,]+(?:\.\d{1,2})?)/);
-      if (!match) return null;
-      const num = parseFloat(match[1].replace(/,/g, ''));
-      return isNaN(num) || num <= 0 ? null : num;
+      const all = [...line.matchAll(/[₪]?\s*([\d,]+(?:\.\d{1,2})?)/g)]
+        .map(m => parseFloat(m[1].replace(/,/g, '')))
+        .filter(n => !isNaN(n) && n >= 1);
+      return all.length ? all[all.length - 1] : null;
     }
 
     function formatNIS(amount) {
@@ -953,6 +958,24 @@
       results.earnings = dedupe(results.earnings);
       results.deductions = dedupe(results.deductions);
       results.employer = dedupe(results.employer);
+
+      // Gross pay fallback: if ברוטו wasn't found explicitly, use the largest
+      // amount seen across all parsed lines (employer-charge columns are often
+      // the gross, and they're usually the biggest number on the payslip).
+      if (!results.gross) {
+        const allAmounts = [
+          ...results.earnings.map(r => r.amount),
+          ...results.deductions.map(r => r.amount),
+          ...results.unknown.map(r => r.amount),
+        ].filter(Boolean);
+        const biggest = allAmounts.length ? Math.max(...allAmounts) : null;
+        // Only use it if it's significantly larger than net (looks like gross)
+        if (biggest && results.net && biggest > results.net * 1.1) {
+          results.gross = biggest;
+        } else if (biggest && !results.net) {
+          results.gross = biggest;
+        }
+      }
 
       // Generate notes
       if (results.gross && results.net) {
