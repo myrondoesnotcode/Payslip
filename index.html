@@ -4,281 +4,384 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Israeli Payslip Explainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f5f4f0;
+      --bg: #f0f2ff;
       --surface: #ffffff;
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
-      --primary-light: #eff6ff;
-      --text: #111827;
-      --text-muted: #6b7280;
-      --border: #e5e7eb;
-      --success: #16a34a;
-      --success-light: #f0fdf4;
-      --warning: #d97706;
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #eef2ff;
+      --primary-glow: rgba(99,102,241,0.25);
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --border-subtle: #f1f5f9;
+      --success: #10b981;
+      --success-light: #ecfdf5;
+      --success-dark: #059669;
+      --warning: #f59e0b;
       --warning-light: #fffbeb;
-      --error: #dc2626;
+      --error: #ef4444;
       --error-light: #fef2f2;
-      --radius: 12px;
-      --radius-sm: 8px;
-      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
-      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --radius-xs: 8px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow: 0 4px 16px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04);
+      --shadow-lg: 0 20px 48px rgba(99,102,241,0.18), 0 4px 12px rgba(0,0,0,0.06);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.5;
       min-height: 100vh;
-      padding: 24px 16px 64px;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .container {
-      max-width: 640px;
-      margin: 0 auto;
-    }
-
-    /* Header */
-    header {
+    /* ── Hero Header ──────────────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(145deg, #0d0d2b 0%, #1e1b4b 45%, #2d2469 100%);
+      padding: 56px 24px 100px;
       text-align: center;
-      padding: 40px 0 32px;
+      position: relative;
+      overflow: hidden;
     }
-    .header-flags {
-      font-size: 2rem;
-      margin-bottom: 12px;
+    /* subtle radial glow */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    /* bottom wave */
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      height: 48px;
+      background: var(--bg);
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    }
+    .hero-flags {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
     }
-    .header-flags span { line-height: 1; }
-    .header-divider {
-      width: 1.5px;
-      height: 28px;
-      background: var(--border);
-      display: inline-block;
-      vertical-align: middle;
-      margin: 0 2px;
+    .hero-flags span { font-size: 2rem; line-height: 1; }
+    .hero-flag-divider {
+      width: 1px; height: 24px;
+      background: rgba(255,255,255,0.2);
     }
     h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      margin-bottom: 8px;
+      font-size: clamp(1.75rem, 5vw, 2.5rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
     }
-    .subtitle {
-      color: var(--text-muted);
+    .hero-subtitle {
       font-size: 1rem;
+      color: rgba(255,255,255,0.6);
+      position: relative;
+      z-index: 1;
     }
-    .subtitle .hebrew {
+    .hero-subtitle .hebrew {
       direction: rtl;
       unicode-bidi: embed;
+      color: rgba(255,255,255,0.85);
       font-weight: 500;
-      color: var(--text);
     }
 
-    /* Cards */
+    /* ── Page Body ──────────────────────────────────────────────────────── */
+    .page-body {
+      max-width: 620px;
+      margin: -52px auto 0;
+      padding: 0 16px 80px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ── Cards ──────────────────────────────────────────────────────────── */
     .card {
       background: var(--surface);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 24px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .card-inner {
+      padding: 22px 22px;
     }
     .card-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--text-muted);
       margin-bottom: 16px;
     }
 
-    /* Upload zone */
-    #upload-section { padding: 0; overflow: hidden; }
+    /* ── Upload card ──────────────────────────────────────────────────── */
+    #upload-section {
+      box-shadow: var(--shadow-lg);
+      border: 1.5px solid rgba(99,102,241,0.12);
+    }
 
     .dropzone {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 48px 24px;
+      padding: 44px 24px;
       border: 2px dashed var(--border);
-      border-radius: var(--radius);
+      border-radius: var(--radius) var(--radius) 0 0;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.2s ease;
       text-align: center;
       position: relative;
-      min-height: 200px;
-      background: var(--surface);
+      min-height: 190px;
+      background: #fafbff;
     }
     .dropzone:hover,
     .dropzone.drag-over {
       border-color: var(--primary);
       background: var(--primary-light);
+      transform: scale(1.005);
     }
     .dropzone.has-file {
-      border-style: solid;
-      border-color: var(--success);
-      background: var(--success-light);
-      padding: 16px;
+      border: none;
+      border-radius: 0;
+      background: var(--surface);
+      padding: 16px 20px 4px;
       min-height: unset;
+      cursor: default;
+      transform: none;
     }
     .dropzone.loading {
-      border-style: solid;
-      border-color: var(--border);
+      border-color: transparent;
+      background: #fafbff;
       pointer-events: none;
+      transform: none;
     }
 
-    .upload-icon {
-      font-size: 2.5rem;
-      margin-bottom: 12px;
-      line-height: 1;
+    .upload-icon-wrap {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.75rem;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(99,102,241,0.15);
     }
     .upload-title {
-      font-size: 1rem;
-      font-weight: 500;
+      font-size: 1.05rem;
+      font-weight: 600;
       color: var(--text);
       margin-bottom: 4px;
     }
     .upload-hint {
-      font-size: 0.875rem;
+      font-size: 0.825rem;
       color: var(--text-muted);
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
+    .upload-hint strong { color: var(--text); }
 
-    .btn-outline {
+    .btn-browse {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 8px 16px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--surface);
-      color: var(--text);
+      padding: 10px 20px;
+      border-radius: 100px;
+      background: var(--primary);
+      color: white;
       font-size: 0.875rem;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
+      border: none;
       transition: all 0.15s;
+      box-shadow: 0 2px 8px var(--primary-glow);
     }
-    .btn-outline:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-      background: var(--primary-light);
+    .btn-browse:hover {
+      background: var(--primary-dark);
+      box-shadow: 0 4px 14px var(--primary-glow);
+      transform: translateY(-1px);
     }
 
-    /* Preview state */
-    .preview-wrapper {
-      width: 100%;
-      display: none;
-    }
+    /* ── Preview state ─────────────────────────────────────────────────── */
+    .preview-wrapper { width: 100%; display: none; }
     .has-file .preview-wrapper { display: block; }
     .has-file .upload-idle { display: none; }
 
     #preview-canvas {
       width: 100%;
-      max-height: 320px;
+      max-height: 300px;
       object-fit: contain;
-      border-radius: 6px;
+      border-radius: 10px;
       display: block;
-      box-shadow: var(--shadow);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
     }
-    .preview-info {
+    .preview-meta {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 12px;
+      padding: 12px 20px 10px;
+      gap: 8px;
     }
-    .file-name {
-      font-size: 0.875rem;
-      color: var(--text);
-      font-weight: 500;
-      display: flex;
+    .file-chip {
+      display: inline-flex;
       align-items: center;
       gap: 6px;
-    }
-    .file-name-check { color: var(--success); }
-    .btn-change {
+      padding: 5px 12px;
+      background: var(--success-light);
+      border-radius: 100px;
       font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--success-dark);
+      min-width: 0;
+    }
+    .file-chip-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 200px;
+    }
+    .btn-change {
+      font-size: 0.78rem;
       color: var(--text-muted);
       background: none;
-      border: none;
+      border: 1px solid var(--border);
       cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
+      padding: 5px 12px;
+      border-radius: 100px;
       transition: all 0.15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-weight: 500;
     }
-    .btn-change:hover { background: var(--border); color: var(--text); }
+    .btn-change:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 
-    /* Loading state */
+    #text-layer-status {
+      margin: 0 20px 14px;
+      padding: 10px 14px;
+      border-radius: var(--radius-xs);
+      font-size: 0.82rem;
+      line-height: 1.5;
+      display: none;
+    }
+
+    /* ── Loading ───────────────────────────────────────────────────────── */
     .loading-wrapper {
       display: none;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
-      padding: 32px;
+      gap: 14px;
+      padding: 44px 24px;
     }
     .loading .upload-idle,
     .loading .preview-wrapper { display: none; }
     .loading .loading-wrapper { display: flex; }
 
-    .spinner {
-      width: 36px;
-      height: 36px;
-      border: 3px solid var(--border);
-      border-top-color: var(--primary);
+    .spinner-ring {
+      width: 44px; height: 44px;
+      position: relative;
+    }
+    .spinner-ring::before,
+    .spinner-ring::after {
+      content: '';
+      position: absolute;
+      inset: 0;
       border-radius: 50%;
-      animation: spin 0.75s linear infinite;
+    }
+    .spinner-ring::before {
+      border: 3px solid var(--border);
+    }
+    .spinner-ring::after {
+      border: 3px solid transparent;
+      border-top-color: var(--primary);
+      animation: spin 0.7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text {
-      font-size: 0.9rem;
+      font-size: 0.875rem;
+      font-weight: 500;
       color: var(--text-muted);
+      text-align: center;
+      max-width: 260px;
+    }
+    .loading-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      opacity: 0.7;
+      margin-top: -8px;
+      text-align: center;
     }
 
-    /* Analyze button */
+    /* ── Analyze button ─────────────────────────────────────────────────── */
+    #analyze-btn-wrapper {
+      display: none;
+      padding: 12px 20px 20px;
+      background: var(--surface);
+    }
     #analyze-btn {
       display: none;
       width: 100%;
-      padding: 14px;
-      background: var(--primary);
+      padding: 16px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
       color: white;
       border: none;
       border-radius: var(--radius-sm);
       font-size: 1rem;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      transition: background 0.15s;
-      margin-top: 0;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px var(--primary-glow);
+      letter-spacing: -0.01em;
+      position: relative;
+      overflow: hidden;
     }
-    #analyze-btn:hover { background: var(--primary-hover); }
+    #analyze-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+    }
+    #analyze-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px var(--primary-glow);
+    }
     #analyze-btn:active { transform: scale(0.99); }
-    #analyze-btn-wrapper {
-      display: none;
-      padding: 0 24px 24px;
-      background: var(--surface);
-      border-radius: 0 0 var(--radius) var(--radius);
-    }
 
-    /* Error message */
+    /* ── Error ──────────────────────────────────────────────────────────── */
     .error-banner {
       display: none;
       padding: 12px 16px;
       background: var(--error-light);
       border: 1px solid #fecaca;
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-xs);
       color: var(--error);
-      font-size: 0.875rem;
-      margin-top: 12px;
+      font-size: 0.85rem;
+      margin: 0 20px 16px;
+      line-height: 1.5;
     }
     .error-banner.visible { display: block; }
 
-    /* Results */
+    /* ── Results ────────────────────────────────────────────────────────── */
     #results-section { display: none; }
     #results-section.visible { display: block; }
 
@@ -286,109 +389,140 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+      padding: 0 2px;
     }
     .results-header h2 {
       font-size: 1.1rem;
-      font-weight: 600;
+      font-weight: 700;
+      color: var(--text);
     }
     .btn-reset {
-      font-size: 0.875rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.82rem;
       color: var(--primary);
-      background: none;
+      background: var(--primary-light);
       border: none;
       cursor: pointer;
-      padding: 6px 10px;
-      border-radius: var(--radius-sm);
-      transition: background 0.15s;
-      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: 100px;
+      transition: all 0.15s;
+      font-weight: 600;
     }
-    .btn-reset:hover { background: var(--primary-light); }
+    .btn-reset:hover { background: #dde4ff; }
 
-    /* Summary card */
+    /* ── Summary card ───────────────────────────────────────────────────── */
     .summary-grid {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 12px;
+      gap: 10px;
     }
     .summary-item {
       background: var(--bg);
       border-radius: var(--radius-sm);
       padding: 14px 16px;
+      border: 1px solid var(--border-subtle);
     }
     .summary-label {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
-      font-weight: 500;
-      margin-bottom: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
     }
     .summary-value {
-      font-size: 1.2rem;
-      font-weight: 700;
+      font-size: 1.25rem;
+      font-weight: 800;
       color: var(--text);
       font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
     }
-    .summary-value.net { color: var(--success); }
-    .summary-value.gross { color: var(--primary); }
+    .summary-value.net {
+      background: linear-gradient(135deg, var(--success), var(--success-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .summary-value.gross {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
     .summary-period {
-      margin-top: 12px;
-      font-size: 0.875rem;
+      margin-top: 14px;
+      font-size: 0.82rem;
       color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .summary-period::before {
+      content: '📅';
+      font-size: 0.85rem;
     }
 
-    /* Line items table */
+    /* ── Line items ─────────────────────────────────────────────────────── */
     .line-table {
       width: 100%;
       border-collapse: collapse;
     }
-    .line-table tr { border-bottom: 1px solid var(--bg); }
-    .line-table tr:last-child { border-bottom: none; }
+    .line-table tr {
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background 0.1s;
+    }
+    .line-table tbody tr:last-child { border-bottom: none; }
     .line-table td {
-      padding: 10px 4px;
-      font-size: 0.9rem;
+      padding: 11px 6px;
+      font-size: 0.875rem;
     }
     .line-table .col-hebrew {
       color: var(--text-muted);
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       direction: rtl;
       unicode-bidi: embed;
-      width: 30%;
+      width: 28%;
     }
     .line-table .col-english {
       color: var(--text);
-      font-weight: 500;
+      font-weight: 600;
     }
     .line-table .col-amount {
       text-align: right;
-      font-weight: 600;
+      font-weight: 700;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
+      font-size: 0.9rem;
     }
     .line-table .col-pct {
       text-align: right;
       color: var(--text-muted);
-      font-size: 0.8rem;
-      width: 48px;
-      padding-left: 8px;
+      font-size: 0.75rem;
+      width: 44px;
+      padding-left: 4px;
     }
+    /* clickable row cursor */
+    .line-table tbody tr[data-explanation] { cursor: pointer; }
+    .line-table tbody tr[data-explanation]:hover { background: var(--bg); }
 
-    /* Expandable explanation */
+    /* ── Explanation rows ───────────────────────────────────────────────── */
     .explanation-row td {
-      padding: 0 4px 10px;
-      border-bottom: 1px solid var(--bg);
+      padding: 0 6px 12px;
     }
-    .explanation-row:last-child td { border-bottom: none; }
     .explanation-text {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
-      line-height: 1.5;
-      padding: 8px 12px;
+      line-height: 1.6;
+      padding: 10px 14px;
       background: var(--bg);
-      border-radius: 6px;
-      border-left: 3px solid var(--border);
+      border-radius: var(--radius-xs);
+      border-left: 3px solid var(--primary);
     }
 
-    /* Notes */
+    /* ── Notes ──────────────────────────────────────────────────────────── */
     .notes-list {
       list-style: none;
       display: flex;
@@ -396,24 +530,24 @@
       gap: 8px;
     }
     .notes-list li {
-      font-size: 0.875rem;
+      font-size: 0.85rem;
       color: var(--text);
-      padding: 10px 14px;
+      padding: 11px 14px;
       background: var(--warning-light);
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-xs);
       border-left: 3px solid var(--warning);
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
-    /* Unknown terms */
+    /* ── Unknown tags ───────────────────────────────────────────────────── */
     .unknown-list {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
     }
     .unknown-tag {
-      font-size: 0.8rem;
-      padding: 4px 10px;
+      font-size: 0.78rem;
+      padding: 5px 12px;
       background: var(--bg);
       border-radius: 100px;
       color: var(--text-muted);
@@ -422,86 +556,114 @@
       unicode-bidi: embed;
     }
 
-    /* Confidence badge */
+    /* ── Confidence badge ───────────────────────────────────────────────── */
     .confidence-badge {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      font-size: 0.75rem;
-      padding: 3px 8px;
+      font-size: 0.7rem;
+      padding: 3px 9px;
       border-radius: 100px;
-      font-weight: 500;
+      font-weight: 600;
+      letter-spacing: 0.02em;
     }
-    .confidence-high { background: var(--success-light); color: var(--success); }
+    .confidence-high { background: var(--success-light); color: var(--success-dark); }
     .confidence-medium { background: var(--warning-light); color: var(--warning); }
     .confidence-low { background: var(--error-light); color: var(--error); }
 
-    /* Responsive */
-    @media (max-width: 480px) {
-      h1 { font-size: 1.4rem; }
+    /* ── Responsive / Mobile ───────────────────────────────────────────── */
+    @media (max-width: 520px) {
+      .hero { padding: 44px 20px 88px; }
+      .page-body { padding: 0 12px 72px; }
       .summary-grid { grid-template-columns: 1fr 1fr; }
+      .summary-grid .summary-item:last-child { grid-column: span 2; }
       .line-table .col-hebrew { display: none; }
-      .card { padding: 18px; }
+      .card-inner { padding: 18px 16px; }
+      .dropzone { padding: 36px 20px; }
+      #analyze-btn { font-size: 0.95rem; padding: 15px; }
+      .file-chip-name { max-width: 140px; }
+    }
+
+    @media (max-width: 360px) {
+      h1 { font-size: 1.6rem; }
+      .summary-value { font-size: 1.1rem; }
+    }
+
+    /* ── Animations ─────────────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    #results-section.visible {
+      animation: fadeUp 0.3s ease;
+    }
+    #upload-section {
+      animation: fadeUp 0.4s ease 0.1s both;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="header-flags">
-        <span>🇺🇸</span>
-        <div class="header-divider"></div>
-        <span>🇮🇱</span>
-      </div>
-      <h1>Payslip Explainer</h1>
-      <p class="subtitle">Understand your <span class="hebrew">תלוש משכורת</span> in English</p>
-    </header>
+  <!-- Hero Header -->
+  <header class="hero">
+    <div class="hero-flags">
+      <span>🇺🇸</span>
+      <div class="hero-flag-divider"></div>
+      <span>🇮🇱</span>
+    </div>
+    <h1>Payslip Explainer</h1>
+    <p class="hero-subtitle">Understand your <span class="hebrew">תלוש משכורת</span> in plain English</p>
+  </header>
 
+  <div class="page-body">
     <!-- Upload Card -->
-    <div id="upload-section" class="card" style="padding:0">
+    <div id="upload-section" class="card">
       <label class="dropzone" id="dropzone" for="file-input">
         <!-- Idle state -->
         <div class="upload-idle">
-          <div class="upload-icon">📄</div>
+          <div class="upload-icon-wrap">📄</div>
           <p class="upload-title">Drop your payslip here</p>
-          <p class="upload-hint">PDF file (digital, not scanned)</p>
-          <span class="btn-outline">Choose file</span>
+          <p class="upload-hint">PDF, JPG, or PNG &nbsp;·&nbsp; <strong>screenshot OK</strong></p>
+          <span class="btn-browse">Browse file</span>
         </div>
 
         <!-- Preview state -->
         <div class="preview-wrapper">
           <canvas id="preview-canvas"></canvas>
-          <div class="preview-info">
-            <span class="file-name">
-              <span class="file-name-check">✓</span>
-              <span id="file-name-text">payslip.pdf</span>
-            </span>
-            <button class="btn-change" id="change-btn" type="button">Change</button>
-          </div>
-          <div id="text-layer-status" style="display:none; margin-top:10px; padding:10px 12px; border-radius:8px; font-size:0.82rem; line-height:1.5;"></div>
         </div>
 
         <!-- Loading state -->
         <div class="loading-wrapper">
-          <div class="spinner"></div>
+          <div class="spinner-ring"></div>
           <p class="loading-text" id="loading-text">Reading payslip…</p>
+          <p class="loading-sub" id="loading-sub"></p>
         </div>
       </label>
+
+      <!-- Preview meta row (outside label so buttons don't trigger file picker) -->
+      <div class="preview-meta" id="preview-meta" style="display:none">
+        <span class="file-chip">
+          <span>✓</span>
+          <span class="file-chip-name" id="file-name-text">payslip.pdf</span>
+        </span>
+        <button class="btn-change" id="change-btn" type="button">Change file</button>
+      </div>
+
+      <div id="text-layer-status"></div>
 
       <input type="file" id="file-input" accept=".pdf,image/jpeg,image/png,image/webp" style="display:none">
 
       <div id="analyze-btn-wrapper">
-        <button id="analyze-btn" type="button">Explain This Payslip →</button>
+        <button id="analyze-btn" type="button">Explain This Payslip ✦</button>
       </div>
 
-      <div id="file-error" class="error-banner" style="margin: 0 24px 16px;"></div>
+      <div id="file-error" class="error-banner"></div>
     </div>
 
     <!-- Results -->
     <div id="results-section">
       <div class="results-header">
         <h2>Your Payslip Explained</h2>
-        <button class="btn-reset" id="reset-btn">↑ Analyze another</button>
+        <button class="btn-reset" id="reset-btn">↑ New payslip</button>
       </div>
 
       <div id="card-summary" class="card" style="display:none"></div>
@@ -826,7 +988,7 @@
       const deducted = (data.gross && data.net) ? formatNIS(data.gross - data.net) : '—';
       const periodStr = data.period ? `<p class="summary-period">Pay period: <strong>${data.period}</strong></p>` : '';
 
-      showCard('card-summary', `
+      showCard('card-summary', `<div class="card-inner">
         <p class="card-title">Summary</p>
         <div class="summary-grid">
           <div class="summary-item">
@@ -834,58 +996,58 @@
             <div class="summary-value gross">${gross}</div>
           </div>
           <div class="summary-item">
-            <div class="summary-label">Total Deductions</div>
+            <div class="summary-label">Deductions</div>
             <div class="summary-value">${deducted}</div>
           </div>
           <div class="summary-item">
-            <div class="summary-label">Net Pay</div>
+            <div class="summary-label">Take-Home</div>
             <div class="summary-value net">${net}</div>
           </div>
         </div>
         ${periodStr}
-      `);
+      </div>`);
 
       // Earnings
       if (data.earnings.length) {
-        showCard('card-earnings', `
+        showCard('card-earnings', `<div class="card-inner">
           <p class="card-title">Your Earnings</p>
           ${renderLineTable(data.earnings, false)}
-        `);
+        </div>`);
       }
 
       // Deductions (with explanations)
       if (data.deductions.length) {
-        showCard('card-deductions', `
+        showCard('card-deductions', `<div class="card-inner">
           <p class="card-title">Deductions from Your Pay</p>
           ${renderLineTable(data.deductions, true)}
-        `);
+        </div>`);
       }
 
       // Employer contributions
       if (data.employer.length) {
-        showCard('card-employer', `
-          <p class="card-title">Employer Contributions (not deducted from your pay)</p>
+        showCard('card-employer', `<div class="card-inner">
+          <p class="card-title">Employer Contributions</p>
           ${renderLineTable(data.employer, true)}
-        `);
+        </div>`);
       }
 
       // Notes
       if (data.notes.length) {
         const items = data.notes.map(n => `<li>${n}</li>`).join('');
-        showCard('card-notes', `
+        showCard('card-notes', `<div class="card-inner">
           <p class="card-title">Notes</p>
           <ul class="notes-list">${items}</ul>
-        `);
+        </div>`);
       }
 
       // Unknown items
       if (data.unknown.length) {
         const tags = data.unknown.map(u => `<span class="unknown-tag">${u.hebrew} ${u.amount ? formatNIS(u.amount) : ''}</span>`).join('');
-        showCard('card-unknown', `
+        showCard('card-unknown', `<div class="card-inner">
           <p class="card-title">Unrecognized Items</p>
-          <p style="font-size:.875rem;color:var(--text-muted);margin-bottom:12px;">These items appear on your payslip but use non-standard Hebrew. They may be company-specific allowances, special bonuses, or agreements. Ask your HR department to explain them.</p>
+          <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:12px;">These items appear on your payslip but weren't recognized — they may be company-specific. Ask your HR team to clarify.</p>
           <div class="unknown-list">${tags}</div>
-        `);
+        </div>`);
       }
 
       document.getElementById('results-section').classList.add('visible');
@@ -907,17 +1069,19 @@
 
     async function ocrCanvas(canvas) {
       loadingText.textContent = 'Loading OCR engine…';
+      loadingSub.textContent = 'This runs entirely on your device — no data is sent anywhere.';
       const Tesseract = await loadTesseract();
       const worker = await Tesseract.createWorker('heb+eng', Tesseract.OEM.LSTM_ONLY, {
         logger: m => {
           if (m.status === 'recognizing text') {
-            loadingText.textContent = `Reading text… ${Math.round(m.progress * 100)}%`;
+            const pct = Math.round(m.progress * 100);
+            loadingText.textContent = `Reading text… ${pct}%`;
+            loadingSub.textContent = pct < 50 ? 'Scanning lines…' : 'Almost there…';
           } else if (m.status) {
-            // Shorten verbose Tesseract status strings
             const friendly = {
               'loading tesseract core': 'Loading OCR engine…',
               'initializing tesseract': 'Initializing OCR…',
-              'loading language traineddata': 'Loading Hebrew language data…',
+              'loading language traineddata': 'Downloading Hebrew language data…',
               'initializing api': 'Starting OCR…',
             };
             loadingText.textContent = friendly[m.status] || m.status;
@@ -938,9 +1102,11 @@
     const analyzeBtnWrapper = document.getElementById('analyze-btn-wrapper');
     const fileNameText = document.getElementById('file-name-text');
     const loadingText = document.getElementById('loading-text');
+    const loadingSub = document.getElementById('loading-sub');
     const fileError = document.getElementById('file-error');
     const resetBtn = document.getElementById('reset-btn');
     const changeBtn = document.getElementById('change-btn');
+    const previewMeta = document.getElementById('preview-meta');
 
     function showError(msg) {
       fileError.textContent = msg;
@@ -953,6 +1119,7 @@
     function setDropzoneState(state) {
       dropzone.classList.remove('has-file', 'loading', 'drag-over');
       if (state) dropzone.classList.add(state);
+      previewMeta.style.display = (state === 'has-file') ? 'flex' : 'none';
     }
 
     async function handleFile(file) {
@@ -984,12 +1151,11 @@
           const probeText = await extractPdfText(file);
           const hasText = probeText && probeText.trim().length >= 20;
           const statusEl = document.getElementById('text-layer-status');
+          statusEl.style.cssText = 'display:block;padding:9px 20px 14px;font-size:0.82rem;line-height:1.5;';
           if (hasText) {
-            statusEl.style.cssText = 'display:block;margin-top:10px;padding:10px 12px;border-radius:8px;font-size:0.82rem;line-height:1.5;background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;';
-            statusEl.innerHTML = '✓ <strong>Digital PDF detected.</strong> Text is readable — click below to analyze instantly.';
+            statusEl.innerHTML = '<span style="display:inline-block;padding:6px 12px;border-radius:8px;background:#ecfdf5;border:1px solid #a7f3d0;color:#059669;">✓ <strong>Digital PDF</strong> — will analyze instantly.</span>';
           } else {
-            statusEl.style.cssText = 'display:block;margin-top:10px;padding:10px 12px;border-radius:8px;font-size:0.82rem;line-height:1.5;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;';
-            statusEl.innerHTML = '🔍 <strong>Image-based PDF.</strong> Will use OCR to read the text — click below to analyze (takes ~20–30 seconds).';
+            statusEl.innerHTML = '<span style="display:inline-block;padding:6px 12px;border-radius:8px;background:#eef2ff;border:1px solid #c7d2fe;color:#4f46e5;">🔍 <strong>Image PDF</strong> — OCR will read the text (~20–30 s).</span>';
           }
         } else {
           // Image: draw to canvas at high resolution for OCR
@@ -1009,8 +1175,8 @@
           canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
           URL.revokeObjectURL(url);
           const statusEl = document.getElementById('text-layer-status');
-          statusEl.style.cssText = 'display:block;margin-top:10px;padding:10px 12px;border-radius:8px;font-size:0.82rem;line-height:1.5;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;';
-          statusEl.innerHTML = '🔍 <strong>Image uploaded.</strong> Will use OCR to read the Hebrew text — click below to analyze (takes ~20–30 seconds).';
+          statusEl.style.cssText = 'display:block;padding:9px 20px 14px;font-size:0.82rem;line-height:1.5;';
+          statusEl.innerHTML = '<span style="display:inline-block;padding:6px 12px;border-radius:8px;background:#eef2ff;border:1px solid #c7d2fe;color:#4f46e5;">🔍 <strong>Image uploaded</strong> — OCR will read the Hebrew text (~20–30 s).</span>';
         }
         setDropzoneState('has-file');
         analyzeBtnWrapper.style.display = 'block';
@@ -1029,6 +1195,7 @@
       setDropzoneState('loading');
       analyzeBtnWrapper.style.display = 'none';
       loadingText.textContent = 'Reading payslip text…';
+      loadingSub.textContent = '';
 
       // Hide previous results
       document.getElementById('results-section').classList.remove('visible');
@@ -1058,7 +1225,7 @@
         setDropzoneState('has-file');
         analyzeBtnWrapper.style.display = 'block';
         analyzeBtn.style.display = 'block';
-        analyzeBtn.textContent = 'Re-analyze';
+        analyzeBtn.textContent = 'Re-analyze ✦';
 
         if (!data.gross && !data.net && !data.earnings.length && !data.deductions.length) {
           showError('The payslip was read but no recognizable items were found. The format may be unusual — try a different file or contact support.');
@@ -1080,7 +1247,7 @@
       setDropzoneState(null);
       analyzeBtnWrapper.style.display = 'none';
       analyzeBtn.style.display = 'none';
-      analyzeBtn.textContent = 'Explain This Payslip →';
+      analyzeBtn.textContent = 'Explain This Payslip ✦';
       document.getElementById('text-layer-status').style.display = 'none';
       clearError();
       document.getElementById('results-section').classList.remove('visible');
