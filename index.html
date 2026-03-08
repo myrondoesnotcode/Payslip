@@ -685,7 +685,7 @@
     // Categories: earnings | deduction | employer | info
     const DICTIONARY = [
       // ── Earnings ──────────────────────────────────────────────────────────
-      { patterns: ['שכר יסוד', 'שכר בסיס', 'משכורת יסוד', 'שכר'], category: 'earnings',
+      { patterns: ['שכר יסוד', 'שכר בסיס', 'משכורת יסוד'], category: 'earnings',
         english: 'Base Salary', explanation: 'Your core monthly salary before any additions or deductions.' },
       { patterns: ['מילואים', 'מלואים'], category: 'earnings',
         english: 'Reserve Military Duty (Miluim)', explanation: 'Pay for days spent in IDF reserve service (מילואים). By law, your employer must continue paying your salary during reserve duty. The state reimburses the employer, and you may see the miluim compensation appear as a separate income line. The quantity shown (e.g. 0.10) reflects the fraction of the month spent on reserve duty.' },
@@ -812,6 +812,12 @@
       { patterns: ['קוד עובד', 'מספר עובד', 'מס\' עובד', 'ת.ז.', 'תעודת זהות', 'ת"ז'], category: 'noise' },
       { patterns: ['שם עובד', 'שם פרטי', 'שם משפחה', 'שם מלא'], category: 'noise' },
       { patterns: ['מחלקה', 'יחידה', 'אגף', 'סניף'], category: 'noise' },
+      // ── Meid Finances / Hilan reference-section fields (not actual period earnings) ──
+      { patterns: ['שכר לפי', 'שכר חוזי', 'שכר חודשי', 'שכר קובע'], category: 'noise' },
+      { patterns: ['פיצויים פסיבי', 'פיצויים קופה', 'פיצויי פסיב'], category: 'noise' },
+      { patterns: ['קה"ל מוסיף', 'קרן השתלמות חודש', 'קה"ש חודשי'], category: 'noise' },
+      { patterns: ['תחילת עבודה', 'תאריך התחלה', 'ותק בחברה'], category: 'noise' },
+      { patterns: ['חייב ב', 'חייב ג', 'בסיס לחישוב'], category: 'noise' },
     ];
 
     // ─── Parser ───────────────────────────────────────────────────────────────
